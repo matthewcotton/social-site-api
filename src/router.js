@@ -4,22 +4,16 @@ const router = express.Router();
 const userController = require("./Controllers/usersController");
 const postController = require("./Controllers/postController");
 
-// const { ObjectId } = require("mongodb"); // is this needed?
-// const mongoose = require("mongoose"); // is this needed?
-
-// const { User } = require("../models/users"); // is this needed?
-// const { Posts } = require("../models/posts"); // is this needed?
-
 // /* Auth */
-// router.post("/auth", async (req, res) => {
-//   const user = await User
-// })
+router.post("/auth", userController.auth);
 
-// Define CRUD operations for posts
+/* Define CRUD operations for posts */
 // Get all posts
-router.get("/posts/", postController.index);
+router.get("/posts", postController.index);
 // Get posts based on username
-router.get("/posts/:username", postController.userPosts);
+router.get("/posts/user/:username", postController.userPosts);
+// Get a single post based on id
+router.get("/posts/id/:id", postController.singlePost);
 // Add new post
 router.post("/posts/add", postController.add);
 // Update exisitng post

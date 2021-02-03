@@ -11,4 +11,4 @@ const postSchema = mongoose.Schema({
   tags: String,
 });
 
-module.exports.User = mongoose.model("Post", postSchema);
+module.exports.Post = mongoose.model("Post", postSchema);

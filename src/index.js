@@ -7,7 +7,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 // Require body-parser and morgan
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const morgan = require("morgan");
 
 // Require mongoose and connect to database
@@ -30,27 +30,19 @@ db.once("open", () => {
   console.log(`Sucessfully connected to the social-site database.`);
 });
 
-// ?????
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Header",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  if (req.method === "Options") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, DELETE");
-    return res.status(200).json({});
-  }
-});
-
 // Use morgan, bodyParser and router
 app.use(morgan("dev"));
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(router);
 
 const port = process.env.port || 3001;
 
-// CHANGE ONCE HOSTED (I THINK)
+// CHANGE ONCE HOSTED
 app.listen(port, () => {
   console.log(`Social site api listening at http://localhost:${port}`);
 });
+
+/* NOTES */
+// Check all deprication warnings
+// Add pagination to responses
+// Usernames to be stored in lowercase only
