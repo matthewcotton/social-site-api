@@ -22,10 +22,18 @@ exports.singleUser = async function (req, res, next) {
 
 // Create a new user (unprotected endpoint)
 exports.add = async function (req, res, next) {
+  // Check username and password are included in the body
   if (!req.body.username || !req.body.password) {
     return next(createErr(400, "Username and password required"));
   }
-  const user = new User(req.body);
+  // Check username doesn't already exisit
+  if (await User.find({ username: req.body.username.toLowerCase() })) {
+    return next(createErr(409, "Username already exists"));
+  }
+  const user = new User({
+    username: req.body.username.toLowerCase(),
+    password: req.body.password,
+  });
   await user.save();
   res.send({ message: "New user profile created" });
 };
@@ -55,7 +63,7 @@ exports.update = async function (req, res, next) {
         token: req.headers["authorization"],
         username: req.params.username.toLowerCase(),
       },
-      { username: req.body.new_username }
+      { username: req.body.new_username.toLowerCase() }
     );
     if (!user) {
       return next(
