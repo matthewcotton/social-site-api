@@ -6,8 +6,7 @@ const router = require("./router");
 const dotenv = require("dotenv");
 dotenv.config();
 
-// Require body-parser and morgan
-// const bodyParser = require("body-parser");
+// Require morgan
 const morgan = require("morgan");
 
 // Require mongoose and connect to database
@@ -30,7 +29,7 @@ db.once("open", () => {
   console.log(`Sucessfully connected to the social-site database.`);
 });
 
-// Use morgan, bodyParser and router
+// Use morgan, json parser and router
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(router);

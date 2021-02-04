@@ -1,5 +1,4 @@
 const createErr = require("http-errors");
-const { ObjectId } = require("mongodb");
 const { User } = require("../../models/users");
 const authController = require("./authController");
 

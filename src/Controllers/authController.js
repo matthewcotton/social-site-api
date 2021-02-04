@@ -1,5 +1,4 @@
 const createErr = require("http-errors");
-// const { ObjectId } = require("mongodb");
 const { v4: uuidv4 } = require("uuid");
 const { User } = require("../../models/users");
 

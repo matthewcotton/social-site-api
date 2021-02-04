@@ -14,7 +14,6 @@ exports.userPosts = async function (req, res, next) {
     username: req.params.username.toLowerCase(),
   });
   if (!posts.length) {
-    // confirm that an empty object isn't returned from find function
     return next(
       createErr(404, `No posts found with username ${req.params.username}`)
     );
@@ -25,9 +24,8 @@ exports.userPosts = async function (req, res, next) {
 // Get a single post based on post id (unprotected endpoint)
 exports.singlePost = async function (req, res, next) {
   const post = await Post.findById({ _id: ObjectId(req.params.id) });
-  console.log(post)
+  console.log(post);
   if (!post) {
-    // confirm that an empty object isn't returned froById function
     return next(createErr(404, `No post found with id ${req.params.id}`));
   }
   res.send(post);
@@ -37,6 +35,17 @@ exports.singlePost = async function (req, res, next) {
 exports.add = async function (req, res, next) {
   authController.tokenCheck(req, res, next);
   // ADD Check that all required content is included in the body
+  if (
+    !req.body.username ||
+    !req.body.postText ||
+    !req.body.likes ||
+    !req.body.imageUrl ||
+    !req.body.postTitle ||
+    !req.body.timestamp ||
+    !req.body.tags
+  ) {
+    return next(createErr(400, "Required post information missing"));
+  }
   const post = new Post(req.body);
   await post.save();
   res.send({ message: "New post added" });
@@ -45,17 +54,31 @@ exports.add = async function (req, res, next) {
 // Update exisitng post (protected endpoint)
 exports.update = async function (req, res, next) {
   authController.tokenCheck(req, res, next);
-  // ADD Checks
-  // So that user can not update username, userId or origianl time stamp.
+  if (req.params.id.length !== 24) {
+    return next(createErr(400, "Id should be 24 bytes"));
+  }
+  // So that user can not update username or origianl time stamp.
   // Add a new timestamp
-  await Post.findByIdAndUpdate({ _id: ObjectId(req.params.id) }, req.body);
+  const post = await Post.findByIdAndUpdate(
+    { _id: ObjectId(req.params.id) },
+    req.body
+  );
+  if (!post) {
+    return next(createErr(404, `No post found with id ${req.params.id}`));
+  }
   res.send({ message: "Post updated" });
 };
 
 // Delete a post (protected endpoint)
 exports.delete = async function (req, res, next) {
   authController.tokenCheck(req, res, next);
-  await Post.deleteOne({ _id: ObjectId(req.params.id) });
+  if (req.params.id.length !== 24) {
+    return next(createErr(400, "Id should be 24 bytes"));
+  }
+  const post = await Post.deleteOne({ _id: ObjectId(req.params.id) });
+  if (!post.deletedCount) {
+    return next(createErr(404, `No post found with id ${req.params.id}`));
+  }
   res.send({ message: "Post deleted" });
 };
 
