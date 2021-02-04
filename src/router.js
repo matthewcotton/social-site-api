@@ -1,11 +1,22 @@
 const express = require("express");
 const router = express.Router();
 
-const userController = require("./Controllers/usersController");
+const authController = require("./Controllers/authController");
 const postController = require("./Controllers/postController");
+const userController = require("./Controllers/usersController");
 
-// /* Auth */
-router.post("/auth", userController.auth);
+// /* Authentication */
+router.post("/auth", authController.auth);
+
+/* Define CRUD operations for users */
+// Get logged in user
+router.get("/user/:username", userController.singleUser);
+// Create a new user
+router.post("/user/add", userController.add);
+// Update logged in user
+router.put("/user/:username", userController.update);
+// Delete logged in user
+router.delete("/user/:username", userController.delete);
 
 /* Define CRUD operations for posts */
 // Get all posts
@@ -14,7 +25,7 @@ router.get("/posts", postController.index);
 router.get("/posts/user/:username", postController.userPosts);
 // Get a single post based on id
 router.get("/posts/id/:id", postController.singlePost);
-// Add new post
+// Create new post
 router.post("/posts/add", postController.add);
 // Update exisitng post
 router.put("/posts/:id", postController.update);
