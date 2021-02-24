@@ -34,7 +34,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(router);
 
-const port = process.env.port || 3001;
+const port = process.env.PORT || 3001;
 
 // CHANGE ONCE HOSTED
 app.listen(port, () => {
