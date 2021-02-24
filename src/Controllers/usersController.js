@@ -27,7 +27,8 @@ exports.add = async function (req, res, next) {
     return next(createErr(400, "Username and password required"));
   }
   // Check username doesn't already exisit
-  if (await User.find({ username: req.body.username.toLowerCase() })) {
+  const existingUser = await User.find({ username: req.body.username.toLowerCase() })
+  if (existingUser) {
     return next(createErr(409, "Username already exists"));
   }
   const user = new User({

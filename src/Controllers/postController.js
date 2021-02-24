@@ -33,8 +33,10 @@ exports.singlePost = async function (req, res, next) {
 
 // Add new post (protected endpoint)
 exports.add = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
-  // ADD Check that all required content is included in the body
+  const user = await authController.tokenCheck(req, res, next);
+  if (req.body.username !== user.username) {
+    return next(createErr(403, "Username mismatch"));
+  }
   if (
     !req.body.username ||
     !req.body.postText ||
@@ -82,4 +84,4 @@ exports.delete = async function (req, res, next) {
   res.send({ message: "Post deleted" });
 };
 
-// ADD catches where a filure will crash the api server
+// ADD catches where a failure will crash the api server

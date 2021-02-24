@@ -25,7 +25,7 @@ exports.tokenCheck = async function (req, res, next) {
   const authHeader = req.headers["authorization"];
   const user = await User.findOne({ token: authHeader });
   if (user) {
-    return;
+    return user;
   } else {
     next(createErr(401, "Authentication failed"));
   }
