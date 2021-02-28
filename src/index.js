@@ -1,6 +1,7 @@
 // Require express and router
 const express = require("express");
 const router = require("./router");
+const cors = require("cors");
 
 // Use dotenv package to parse enviroment variables
 const dotenv = require("dotenv");
@@ -29,9 +30,10 @@ db.once("open", () => {
   console.log(`Sucessfully connected to the social-site database.`);
 });
 
-// Use morgan, json parser and router
+// Use morgan, json parser, cors and router
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(cors());
 app.use(router);
 
 const port = process.env.PORT || 3001;
