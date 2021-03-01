@@ -73,10 +73,16 @@ exports.removeLike = async function (req, res, next) {
   if (req.params.id.length !== 24) {
     return next(createErr(400, "Id should be 24 bytes"));
   }
-  const post = await Post.findByIdAndUpdate(
-    { _id: ObjectId(req.params.id) },
-    { $inc: { likes: -1 }, $min: { likes: 0 } }
-  );
+  const post = await Post.findById({ _id: ObjectId(req.params.id) });
+  if (post.likes > 0) {
+    await Post.findByIdAndUpdate(
+      { _id: ObjectId(req.params.id) },
+      { $inc: { likes: -1 } }
+    );
+  } else {
+    res.send({ message: "Likes already at 0" });
+  }
+
   if (!post) {
     return next(createErr(404, `No post found with id ${req.params.id}`));
   }
