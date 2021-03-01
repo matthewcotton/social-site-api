@@ -25,6 +25,10 @@ router.get("/posts", postController.index);
 router.get("/posts/user/:username", postController.userPosts);
 // Get a single post based on id
 router.get("/posts/id/:id", postController.singlePost);
+// Add like from a post
+router.patch("/posts/like/:id", postController.addLike);
+// Remove like from a post
+router.patch("/posts/unlike/:id", postController.removeLike);
 // Create new post
 router.post("/posts/add", postController.add);
 // Update exisitng post

@@ -53,14 +53,42 @@ exports.add = async function (req, res, next) {
   res.send({ message: "New post added" });
 };
 
+// Add like from a post (unprotected endpoint)
+exports.addLike = async function (req, res, next) {
+  if (req.params.id.length !== 24) {
+    return next(createErr(400, "Id should be 24 bytes"));
+  }
+  const post = await Post.findByIdAndUpdate(
+    { _id: ObjectId(req.params.id) },
+    { $inc: { likes: 1 } }
+  );
+  if (!post) {
+    return next(createErr(404, `No post found with id ${req.params.id}`));
+  }
+  res.send({ message: "Like added" });
+};
+
+// Remove like from a post (unprotected endpoint)
+exports.removeLike = async function (req, res, next) {
+  if (req.params.id.length !== 24) {
+    return next(createErr(400, "Id should be 24 bytes"));
+  }
+  const post = await Post.findByIdAndUpdate(
+    { _id: ObjectId(req.params.id) },
+    { $inc: { likes: -1 }, $min: { likes: 0 } }
+  );
+  if (!post) {
+    return next(createErr(404, `No post found with id ${req.params.id}`));
+  }
+  res.send({ message: "Like removed" });
+};
+
 // Update exisitng post (protected endpoint)
 exports.update = async function (req, res, next) {
   authController.tokenCheck(req, res, next);
   if (req.params.id.length !== 24) {
     return next(createErr(400, "Id should be 24 bytes"));
   }
-  // So that user can not update username or origianl time stamp.
-  // Add a new timestamp
   const post = await Post.findByIdAndUpdate(
     { _id: ObjectId(req.params.id) },
     req.body
