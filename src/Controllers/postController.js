@@ -43,8 +43,7 @@ exports.add = async function (req, res, next) {
     !req.body.likes ||
     !req.body.imageUrl ||
     !req.body.postTitle ||
-    !req.body.timestamp ||
-    !req.body.tags
+    !req.body.timestamp
   ) {
     return next(createErr(400, "Required post information missing"));
   }
