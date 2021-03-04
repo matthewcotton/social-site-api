@@ -41,7 +41,7 @@ exports.add = async function (req, res, next) {
     !req.body.username ||
     !req.body.postText ||
     !req.body.likes ||
-    !req.body.imageUrl ||
+    !req.body.imageData ||
     !req.body.postTitle ||
     !req.body.timestamp
   ) {
