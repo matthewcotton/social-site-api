@@ -5,10 +5,16 @@ const postSchema = mongoose.Schema({
   userId: Number,
   postText: String,
   likes: Number,
-  imageUrl: String,
+  imageData: Object,
   postTitle: String,
   timestamp: String,
   tags: String,
 });
 
 module.exports.Post = mongoose.model("Post", postSchema);
+
+// {
+//   url: String,
+//   creatorUsername: String,
+//   creatorLink: String,
+// },
