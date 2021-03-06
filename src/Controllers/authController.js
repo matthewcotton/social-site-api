@@ -17,7 +17,7 @@ exports.auth = async function (req, res, next) {
   }
   user.token = uuidv4();
   await user.save();
-  res.send({ token: user.token });
+  res.send({ token: user.token, username: user.token });
 };
 
 // Token Check
