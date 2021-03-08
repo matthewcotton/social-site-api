@@ -20,7 +20,7 @@ router.delete("/user/:username", userController.delete);
 
 /* Define CRUD operations for posts */
 // Get all posts
-router.get("/posts/:limit/:skip", postController.index);
+router.get("/posts", postController.index);
 // Get posts based on username
 router.get("/posts/user/:username", postController.userPosts);
 // Get a single post based on id
