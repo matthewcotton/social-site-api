@@ -5,6 +5,7 @@ const authController = require("./authController");
 
 // Get all posts (unprotected endpoint)
 exports.index = async function (req, res) {
+  console.log(`skip: ${skip}  limit: ${limit}`)
   const skip = req.body.skip ? Number(req.body.skip) : 0;
   const limit = req.body.limit ? Number(req.body.limit) : 10;
   res.send(await Post.find({}).sort({ timestamp: -1 }).skip(skip).limit(limit));
