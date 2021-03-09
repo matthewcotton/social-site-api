@@ -12,9 +12,14 @@ exports.index = async function (req, res) {
 
 // Get posts based on username (unprotected endpoint)
 exports.userPosts = async function (req, res, next) {
+  const skip = req.query.skip ? Number(req.query.skip) : 0;
+  const limit = req.query.limit ? Number(req.query.limit) : 10;
   const posts = await Post.find({
     username: req.params.username.toLowerCase(),
-  });
+  })
+    .sort({ timestamp: -1 })
+    .skip(skip)
+    .limit(limit);
   if (!posts.length) {
     return next(
       createErr(404, `No posts found with username ${req.params.username}`)
