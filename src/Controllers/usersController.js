@@ -28,7 +28,7 @@ exports.add = async function (req, res, next) {
   }
   // Check username doesn't already exisit
   const existingUser = await User.find({ username: req.body.username.toLowerCase() })
-  if (existingUser) {
+  if (existingUser.length) {
     return next(createErr(409, "Username already exists"));
   }
   const user = new User({
