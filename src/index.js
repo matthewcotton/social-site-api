@@ -38,7 +38,6 @@ app.use(router);
 
 const port = process.env.PORT || 3001;
 
-// CHANGE ONCE HOSTED
 app.listen(port, () => {
   console.log(`Social site api listening at http://localhost:${port}`);
 });
