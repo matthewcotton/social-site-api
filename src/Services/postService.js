@@ -1,7 +1,7 @@
 const createErr = require("http-errors");
 const { ObjectId } = require("mongodb");
 const { Post } = require("../../models/posts");
-const authController = require("./authController");
+const authService = require("./authService");
 
 // Get all posts (unprotected endpoint)
 exports.index = async function (req, res) {
@@ -40,7 +40,7 @@ exports.singlePost = async function (req, res, next) {
 
 // Add new post (protected endpoint)
 exports.add = async function (req, res, next) {
-  const user = await authController.tokenCheck(req, res, next);
+  const user = await authService.tokenCheck(req, res, next);
   if (req.body.username !== user.username) {
     return next(createErr(403, "Username mismatch"));
   }
@@ -86,18 +86,18 @@ exports.removeLike = async function (req, res, next) {
       { $inc: { likes: -1 } }
     );
   } else {
-    res.send({ message: "Likes already at 0" });
+    res.send({ message: "Likes already at 0" }); //reformat to status and send
   }
 
   if (!post) {
     return next(createErr(404, `No post found with id ${req.params.id}`));
   }
-  res.send({ message: "Like removed" });
+  res.send({ message: "Like removed" }); //reformat to status and send
 };
 
 // Update exisitng post (protected endpoint)
 exports.update = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
+  authService.tokenCheck(req, res, next);
   if (req.params.id.length !== 24) {
     return next(createErr(400, "Id should be 24 bytes"));
   }
@@ -113,7 +113,7 @@ exports.update = async function (req, res, next) {
 
 // Delete a post (protected endpoint)
 exports.delete = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
+  authService.tokenCheck(req, res, next);
   if (req.params.id.length !== 24) {
     return next(createErr(400, "Id should be 24 bytes"));
   }
@@ -123,5 +123,3 @@ exports.delete = async function (req, res, next) {
   }
   res.send({ message: "Post deleted" });
 };
-
-// ADD catches where a failure will crash the api server
