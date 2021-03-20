@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+const saltRounds = 12;
 const createErr = require("http-errors");
 const { User } = require("../../models/users");
 const authService = require("./authService");
@@ -27,50 +29,75 @@ exports.add = async function (req, res, next) {
     return next(createErr(400, "Username and password required"));
   }
   // Check username doesn't already exisit
-  const existingUser = await User.find({ username: req.body.username.toLowerCase() })
+  const existingUser = await User.find({
+    username: req.body.username.toLowerCase(),
+  });
   if (existingUser.length) {
     return next(createErr(409, "Username already exists"));
   }
-  const user = new User({
-    username: req.body.username.toLowerCase(),
-    password: req.body.password,
+
+  bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
+    if (err) {
+      return next(res.status(500).send("Password encrypting error"));
+    }
+    const user = new User({
+      username: req.body.username.toLowerCase(),
+      password: hash,
+    });
+
+    await user.save();
+    res.send({ message: "New user profile created" });
   });
-  await user.save();
-  res.send({ message: "New user profile created" });
 };
 
-// Update logged in user (protected endpoint)
-exports.update = async function (req, res, next) {
+// Update users password (protected)
+exports.updatePassword = async function (req, res, next) {
   authService.tokenCheck(req, res, next);
-  // Update password
-  if (req.body.new_password) {
-    const user = await User.findOneAndUpdate(
-      {
-        token: req.headers["authorization"],
-        username: req.params.username.toLowerCase(),
-      },
-      { password: req.body.new_password }
-    );
-    if (!user) {
-      return next(
-        createErr(404, `No user found with username ${req.params.username}`)
-      );
-    }
+  // Check username and password are included in the body
+  if (!req.body.new_password) {
+    return next(res.status(400).send("New password required"));
   }
-  // Update username
-  if (req.body.new_username) {
+  // Update password
+  bcrypt.hash(req.body.new_password, saltRounds, async (err, hash) => {
+    if (err) {
+      return next(res.status(500).send("Password encrypting error"));
+    }
     const user = await User.findOneAndUpdate(
       {
         token: req.headers["authorization"],
         username: req.params.username.toLowerCase(),
       },
-      { username: req.body.new_username.toLowerCase() }
+      { password: hash }
     );
     if (!user) {
       return next(
-        createErr(404, `No user found with username ${req.params.username}`)
+        res
+          .status(404)
+          .send(`No user found with username ${req.params.username}`)
       );
     }
+    res.send({ message: "User profile updated" });
+  });
+};
+
+// Update users username (protected)
+exports.updateUsername = async function (req, res, next) {
+  authService.tokenCheck(req, res, next);
+  // Update username
+  if (!req.body.new_username) {
+    return next(res.status(404).send("New username is required"));
+  }
+  const user = await User.findOneAndUpdate(
+    {
+      token: req.headers["authorization"],
+      username: req.params.username.toLowerCase(),
+    },
+    { username: req.body.new_username.toLowerCase() }
+  );
+  if (!user) {
+    return next(
+      res.status(404).send(`No user found with username ${req.params.username}`)
+    );
   }
   res.send({ message: "User profile updated" });
 };
@@ -89,5 +116,3 @@ exports.delete = async function (req, res, next) {
   }
   res.send({ message: "User profile deleted" });
 };
-
-// ADD catches where a filure will crash the api server

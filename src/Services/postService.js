@@ -86,13 +86,13 @@ exports.removeLike = async function (req, res, next) {
       { $inc: { likes: -1 } }
     );
   } else {
-    res.send({ message: "Likes already at 0" });
+    res.send({ message: "Likes already at 0" }); //reformat to status and send
   }
 
   if (!post) {
     return next(createErr(404, `No post found with id ${req.params.id}`));
   }
-  res.send({ message: "Like removed" });
+  res.send({ message: "Like removed" }); //reformat to status and send
 };
 
 // Update exisitng post (protected endpoint)
@@ -123,5 +123,3 @@ exports.delete = async function (req, res, next) {
   }
   res.send({ message: "Post deleted" });
 };
-
-// ADD catches where a failure will crash the api server

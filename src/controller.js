@@ -13,8 +13,10 @@ router.post("/auth", authService.auth);
 router.get("/user/:username", userService.singleUser);
 // Create a new user
 router.post("/user/add", userService.add);
-// Update logged in user
-router.put("/user/:username", userService.update);
+// Update username
+router.patch("/user/username/:username", userService.updateUsername);
+// Update password
+router.patch("/user/password/:username", userService.updatePassword);
 // Delete logged in user
 router.delete("/user/:username", userService.delete);
 
