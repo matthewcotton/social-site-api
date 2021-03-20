@@ -1,10 +1,10 @@
 const createErr = require("http-errors");
 const { User } = require("../../models/users");
-const authController = require("./authController");
+const authService = require("./authService");
 
 // Get data of logged in user (protected endpoint)
 exports.singleUser = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
+  authService.tokenCheck(req, res, next);
   const user = await User.findOne(
     {
       token: req.headers["authorization"],
@@ -41,7 +41,7 @@ exports.add = async function (req, res, next) {
 
 // Update logged in user (protected endpoint)
 exports.update = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
+  authService.tokenCheck(req, res, next);
   // Update password
   if (req.body.new_password) {
     const user = await User.findOneAndUpdate(
@@ -77,7 +77,7 @@ exports.update = async function (req, res, next) {
 
 // Delete logged in user
 exports.delete = async function (req, res, next) {
-  authController.tokenCheck(req, res, next);
+  authService.tokenCheck(req, res, next);
   const user = await User.findOneAndDelete({
     token: req.headers["authorization"],
     username: req.params.username.toLowerCase(),
