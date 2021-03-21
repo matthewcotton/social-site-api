@@ -15,7 +15,6 @@
     "dotenv": "^8.2.0",
     "eslint-config-airbnb": "^18.2.1",
     "express": "^4.17.1",
-    "http-errors": "^1.8.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",
     "mongoose": "^5.11.14",

@@ -1,4 +1,3 @@
-const createErr = require("http-errors"); //remove
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { User } = require("../../models/users");
@@ -12,7 +11,7 @@ exports.auth = async function (req, res, next) {
     username: req.body.username.toLowerCase(),
   });
   if (!user) {
-    return next(createErr(401, "Incorrect username"));
+    return next(res.status(401).send("Incorrect username"));
   }
   // Password check
   bcrypt.compare(req.body.password, user.password, async (err, result) => {
@@ -47,6 +46,7 @@ exports.tokenCheck = async function (req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = User.findById(decoded.id);
+    console.log(user)
     if (user) {
       return user;
     } else {
@@ -55,6 +55,6 @@ exports.tokenCheck = async function (req, res, next) {
       );
     }
   } catch (err) {
-    next(res.status(500).send("Authentication failed. JWT verify error."));
+    return next(res.status(500).send("Authentication failed. JWT verify error."));
   }
 };

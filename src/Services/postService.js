@@ -1,4 +1,3 @@
-const createErr = require("http-errors");
 const { ObjectId } = require("mongodb");
 const { Post } = require("../../models/posts");
 const authService = require("./authService");
@@ -22,7 +21,9 @@ exports.userPosts = async function (req, res, next) {
     .limit(limit);
   if (!posts.length) {
     return next(
-      createErr(404, `No posts found with username ${req.params.username}`)
+      res
+        .status(404)
+        .send(`No posts found with username ${req.params.username}`)
     );
   }
   res.send(posts);
@@ -33,43 +34,47 @@ exports.singlePost = async function (req, res, next) {
   const post = await Post.findById({ _id: ObjectId(req.params.id) });
   console.log(post);
   if (!post) {
-    return next(createErr(404, `No post found with id ${req.params.id}`));
+    return next(res.status(404).send(`No post found with id ${req.params.id}`));
   }
   res.send(post);
 };
 
 // Add new post (protected endpoint)
 exports.add = async function (req, res, next) {
-  const user = await authService.tokenCheck(req, res, next);
-  if (req.body.username !== user.username) {
-    return next(createErr(403, "Username mismatch"));
+  try {
+    const user = await authService.tokenCheck(req, res, next);
+    if (req.body.username !== user.username) {
+      return next(res.status(403).send("Username mismatch"));
+    }
+    if (
+      !req.body.username ||
+      !req.body.postText ||
+      !req.body.likes ||
+      !req.body.imageData ||
+      !req.body.postTitle ||
+      !req.body.timestamp
+    ) {
+      return next(res.status(400).send("Required post information missing"));
+    }
+    const post = new Post(req.body);
+    await post.save();
+    res.send({ message: "New post added" });
+  } catch (err) {
+    return;
   }
-  if (
-    !req.body.username ||
-    !req.body.postText ||
-    !req.body.likes ||
-    !req.body.imageData ||
-    !req.body.postTitle ||
-    !req.body.timestamp
-  ) {
-    return next(createErr(400, "Required post information missing"));
-  }
-  const post = new Post(req.body);
-  await post.save();
-  res.send({ message: "New post added" });
 };
 
 // Add like from a post (unprotected endpoint)
 exports.addLike = async function (req, res, next) {
   if (req.params.id.length !== 24) {
-    return next(createErr(400, "Id should be 24 bytes"));
+    return next(res.status(400).send("Id should be 24 bytes"));
   }
   const post = await Post.findByIdAndUpdate(
     { _id: ObjectId(req.params.id) },
     { $inc: { likes: 1 } }
   );
   if (!post) {
-    return next(createErr(404, `No post found with id ${req.params.id}`));
+    return next(res.status(404).send(`No post found with id ${req.params.id}`));
   }
   res.send({ message: "Like added" });
 };
@@ -77,7 +82,7 @@ exports.addLike = async function (req, res, next) {
 // Remove like from a post (unprotected endpoint)
 exports.removeLike = async function (req, res, next) {
   if (req.params.id.length !== 24) {
-    return next(createErr(400, "Id should be 24 bytes"));
+    return next(res.status(400).send("Id should be 24 bytes"));
   }
   const post = await Post.findById({ _id: ObjectId(req.params.id) });
   if (post.likes > 0) {
@@ -90,7 +95,7 @@ exports.removeLike = async function (req, res, next) {
   }
 
   if (!post) {
-    return next(createErr(404, `No post found with id ${req.params.id}`));
+    return next(res.status(404).send(`No post found with id ${req.params.id}`));
   }
   res.send({ message: "Like removed" }); //reformat to status and send
 };
@@ -99,14 +104,14 @@ exports.removeLike = async function (req, res, next) {
 exports.update = async function (req, res, next) {
   authService.tokenCheck(req, res, next);
   if (req.params.id.length !== 24) {
-    return next(createErr(400, "Id should be 24 bytes"));
+    return next(res.status(400).send("Id should be 24 bytes"));
   }
   const post = await Post.findByIdAndUpdate(
     { _id: ObjectId(req.params.id) },
     req.body
   );
   if (!post) {
-    return next(createErr(404, `No post found with id ${req.params.id}`));
+    return next(res.status(404).send(`No post found with id ${req.params.id}`));
   }
   res.send({ message: "Post updated" });
 };
@@ -115,11 +120,11 @@ exports.update = async function (req, res, next) {
 exports.delete = async function (req, res, next) {
   authService.tokenCheck(req, res, next);
   if (req.params.id.length !== 24) {
-    return next(createErr(400, "Id should be 24 bytes"));
+    return next(res.status(400).send("Id should be 24 bytes"));
   }
   const post = await Post.deleteOne({ _id: ObjectId(req.params.id) });
   if (!post.deletedCount) {
-    return next(createErr(404, `No post found with id ${req.params.id}`));
+    return next(res.status(404).send(`No post found with id ${req.params.id}`));
   }
   res.send({ message: "Post deleted" });
 };

@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
-const createErr = require("http-errors");
 const { User } = require("../../models/users");
 const authService = require("./authService");
 
@@ -16,7 +15,7 @@ exports.singleUser = async function (req, res, next) {
   );
   if (!user) {
     return next(
-      createErr(404, `No user found with username ${req.params.username}`)
+      res.status(404).send(`No user found with username ${req.params.username}`)
     );
   }
   res.send(user);
@@ -26,14 +25,14 @@ exports.singleUser = async function (req, res, next) {
 exports.add = async function (req, res, next) {
   // Check username and password are included in the body
   if (!req.body.username || !req.body.password) {
-    return next(createErr(400, "Username and password required"));
+    return next(res.status(400).send("Username and password required"));
   }
   // Check username doesn't already exisit
   const existingUser = await User.find({
     username: req.body.username.toLowerCase(),
   });
   if (existingUser.length) {
-    return next(createErr(409, "Username already exists"));
+    return next(res.status(409).send("Username already exists"));
   }
 
   bcrypt.hash(req.body.password, saltRounds, async (err, hash) => {
@@ -111,7 +110,7 @@ exports.delete = async function (req, res, next) {
   });
   if (!user) {
     return next(
-      createErr(404, `No user found with username ${req.params.username}`)
+      res.status(404).send(`No user found with username ${req.params.username}`)
     );
   }
   res.send({ message: "User profile deleted" });
