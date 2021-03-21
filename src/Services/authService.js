@@ -46,7 +46,7 @@ exports.tokenCheck = async function (req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = User.findById(decoded.id);
-    console.log(user)
+    console.log(user);
     if (user) {
       return user;
     } else {
@@ -55,6 +55,8 @@ exports.tokenCheck = async function (req, res, next) {
       );
     }
   } catch (err) {
-    return next(res.status(500).send("Authentication failed. JWT verify error."));
+    return next(
+      res.status(500).send("Authentication failed. JWT verify error.")
+    );
   }
 };
